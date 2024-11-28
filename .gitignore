@@ -1,5 +1,6 @@
 .venv
 .env
 *.pem
+*.log
 .DS_Store
 __pycache__

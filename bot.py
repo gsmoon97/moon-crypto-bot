@@ -21,9 +21,11 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     logger.info("Received /start command")
     await update.message.reply_text("Hello there! This is Moon's Crypto Bot 🌚")
+
 
 async def place(update: Update, context: ContextTypes.DEFAULT_TYPE):
     logger.info("Received /place command")
@@ -35,6 +37,7 @@ async def place(update: Update, context: ContextTypes.DEFAULT_TYPE):
         logger.error(f"Error placing orders: {e}")
         await context.bot.send_message(chat_id=CHAT_ID, text=f"Error placing orders: {e}")
 
+
 async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE):
     logger.info("Received /cancel command")
     try:
@@ -44,6 +47,7 @@ async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE):
     except Exception as e:
         logger.error(f"Error canceling orders: {e}")
         await context.bot.send_message(chat_id=CHAT_ID, text=f"Error canceling orders: {e}")
+
 
 if __name__ == "__main__":
     logger.info("Bot is starting...")

@@ -1,9 +1,10 @@
+# orders.py
 import ccxt
 import os
 import logging
 from datetime import datetime, timezone
 from dotenv import load_dotenv
-from time import sleep
+from asyncio import sleep
 
 # Load environment variables
 load_dotenv()
@@ -15,9 +16,12 @@ MAX_PERCENTAGE_DIP = int(os.getenv("MAX_PERCENTAGE_DIP", 10))
 
 # Configure logging
 logging.basicConfig(
-    filename="orders.log",
     level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s",
+    format="%(asctime)s [%(levelname)s] [%(filename)s:%(lineno)d]: %(message)s",
+    handlers=[
+        logging.FileHandler("orders.log"),
+        logging.StreamHandler()
+    ],
 )
 logger = logging.getLogger(__name__)
 
@@ -48,7 +52,7 @@ def get_krw_balance():
         balance = exchange.fetch_balance()
         available_balance = balance["KRW"]["free"]
 
-        # Fetch all open orders and calculate reserved funds
+        # Fetch open orders and calculate reserved funds
         open_orders = exchange.fetch_open_orders("BTC/KRW")
         reserved_balance = 0
         for order in open_orders:
@@ -89,12 +93,12 @@ def check_funds():
             logger.info(
                 f"Sufficient funds: {available} KRW available for {required} KRW required."
             )
-            return True, f"Sufficient funds: {available} KRW available for {required} KRW required."
+            return True, f"Sufficient funds: {available} KRW available for {required} KRW required. 🌚"
         else:
             logger.warning(
                 f"Insufficient funds: {available} KRW available, but {required} KRW required."
             )
-            return False, f"Insufficient funds: {available} KRW available, but {required} KRW required."
+            return False, f"Insufficient funds: {available} KRW available, but {required} KRW required. 🌝"
     except Exception as e:
         logger.error(f"Error checking funds: {e}")
         raise
@@ -114,7 +118,7 @@ def place_orders():
             orders.append(order["id"])
             logger.info(f"Placed order: {order['id']} | Price: {price} | Amount: {amount} BTC")
         logger.info("All orders placed successfully.")
-        return orders
+        return ", ".join(orders)  # Format order IDs into a string
     except Exception as e:
         logger.error(f"Error placing orders: {e}")
         raise
@@ -180,7 +184,7 @@ def cancel_orders():
         open_orders = exchange.fetch_open_orders("BTC/KRW")
         if not open_orders:
             logger.info("No open orders to cancel.")
-            return "No open orders to cancel."
+            return "No open orders to cancel. 🌝"
         
         for order in open_orders:
             exchange.cancel_order(order["id"])
@@ -194,7 +198,7 @@ def cancel_orders():
 
         # Prepare summary message
         summary = (
-            f"Orders canceled successfully.\n"
+            f"Orders canceled successfully. 🌚\n"
             f"Today's BTC purchases: {total_btc:.6f} BTC at an average price of {avg_price:.2f} KRW.\n"
             f"Current BTC holdings: {btc_balance:.6f} BTC."
         )
@@ -205,7 +209,7 @@ def cancel_orders():
         raise
 
 
-def monitor_filled_orders(order_ids, on_filled_callback):
+async def monitor_filled_orders(order_ids, on_filled_callback):
     try:
         logger.info("Started monitoring filled orders.")
         while order_ids:
@@ -214,7 +218,8 @@ def monitor_filled_orders(order_ids, on_filled_callback):
                 if order["status"] == "closed":
                     order_ids.remove(order_id)
                     logger.info(f"Order filled: {order_id}")
-                    on_filled_callback()
-            sleep(60) # wait 60 seconds (1 minute)
+                    await on_filled_callback()  # Use await to ensure the callback is run asynchronously
+            await sleep(60)  # Use asyncio.sleep to avoid blocking the event loop
+        logger.info("Stopped monitoring filled orders.")
     except Exception as e:
-        logger
+        logger.error(f"Error monitoring filled orders: {e}")

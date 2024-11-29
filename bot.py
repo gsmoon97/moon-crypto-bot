@@ -1,3 +1,4 @@
+# bot.py
 import logging
 from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
@@ -13,7 +14,7 @@ CHAT_ID = os.getenv("CHAT_ID")
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format="%(asctime)s [%(levelname)s] [bot.py]: %(message)s",
+    format="%(asctime)s [%(levelname)s] [%(filename)s:%(lineno)d]: %(message)s",
     handlers=[
         logging.FileHandler("bot.log"),
         logging.StreamHandler()
@@ -32,10 +33,10 @@ async def place(update: Update, context: ContextTypes.DEFAULT_TYPE):
     try:
         message = place_orders()
         logger.info("Orders placed successfully.")
-        await context.bot.send_message(chat_id=CHAT_ID, text=message)
+        await context.bot.send_message(chat_id=CHAT_ID, text=f"Orders placed successfully: {message} 🌚")
     except Exception as e:
         logger.error(f"Error placing orders: {e}")
-        await context.bot.send_message(chat_id=CHAT_ID, text=f"Error placing orders: {e}")
+        await context.bot.send_message(chat_id=CHAT_ID, text=f"Error placing orders: {e} 🌝")
 
 
 async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -43,10 +44,10 @@ async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE):
     try:
         message = cancel_orders()
         logger.info("Orders canceled successfully.")
-        await context.bot.send_message(chat_id=CHAT_ID, text=message)
+        await context.bot.send_message(chat_id=CHAT_ID, text=f"{message} 🌚")
     except Exception as e:
         logger.error(f"Error canceling orders: {e}")
-        await context.bot.send_message(chat_id=CHAT_ID, text=f"Error canceling orders: {e}")
+        await context.bot.send_message(chat_id=CHAT_ID, text=f"Error canceling orders: {e} 🌝")
 
 
 if __name__ == "__main__":

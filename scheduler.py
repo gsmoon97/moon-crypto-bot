@@ -53,15 +53,17 @@ async def cancel_orders_and_notify():
     await notify_user(message)
 
 
-def daily_schedule():
-    # Ensure there's an event loop in the main thread
-    asyncio.set_event_loop(asyncio.new_event_loop())
+def run_coroutine(coro):
+    """Run an async coroutine in a new event loop."""
+    asyncio.run(coro)
 
+
+def daily_schedule():
     scheduler = AsyncIOScheduler()
 
     # Place orders at 00:15 AM UTC
     scheduler.add_job(
-        lambda: asyncio.create_task(place_orders_and_monitor()),
+        lambda: run_coroutine(place_orders_and_monitor()),
         "cron",
         hour=0,
         minute=15,
@@ -70,7 +72,7 @@ def daily_schedule():
 
     # Cancel orders at 23:45 PM UTC
     scheduler.add_job(
-        lambda: asyncio.create_task(cancel_orders_and_notify()),
+        lambda: run_coroutine(cancel_orders_and_notify()),
         "cron",
         hour=23,
         minute=45,

@@ -1,2 +1,2 @@
 source .venv/bin/activate
-nohup python3 scheduler.py > run.log 2>&1 &
+nohup python3 bot.py > bot.log 2>&1 &

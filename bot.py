@@ -1,11 +1,15 @@
 # bot.py
-import logging
 import ccxt
 from decimal import Decimal
-import os
 from dotenv import load_dotenv
+import logging
+import os
+import pytz
+import schedule
 from telegram import Update
 from telegram.ext import Application, CommandHandler, ContextTypes
+import threading
+import time
 
 # Load environment variables
 load_dotenv()
@@ -16,7 +20,7 @@ TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 CHAT_ID = os.getenv("CHAT_ID")
 
 MIN_PERCENTAGE_DIP = int(os.getenv("MIN_PERCENTAGE_DIP", 1))
-MAX_PERCENTAGE_DIP = int(os.getenv("MAX_PERCENTAGE_DIP", 10))
+MAX_PERCENTAGE_DIP = int(os.getenv("MAX_PERCENTAGE_DIP", 15))
 
 # Configure logging
 logging.basicConfig(
@@ -84,7 +88,7 @@ def get_open_price():
         logger.error(f"Error fetching open price: {e}")
         raise
 
-# Function to round the price to the nearest 1000 KRW
+# Function to round the price to the nearest 1,000 KRW
 def round_upbit_price(price):
     return round(price / 1000) * 1000
 
@@ -146,7 +150,7 @@ async def cancel_orders(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
 
             # Calculate percentage dip (reverse the open price logic)
             original_price = get_open_price()  # Get open price for calculation
-            percentage_dip = round((1 - float(order["price"]) / original_price) * 100, 1)  # % dip
+            percentage_dip = round((1 - float(order["price"]) / original_price) * 100)  # % dip
 
             # Format output for the user
             canceled_order_details.append(
@@ -160,6 +164,31 @@ async def cancel_orders(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
     except Exception as e:
         logger.error(f"Error canceling orders: {e}")
         await update.message.reply_text("An error occurred while canceling orders. Please try again later 🌝")
+
+# Function to automatically trigger a task at a scheduled time (UTC+0)
+def scheduled_task(task_name, task_function):
+    logger.info(f"Scheduled {task_name} task triggered.")
+    
+    async def run_task():
+        application = Application.builder().token(TELEGRAM_BOT_TOKEN).build()
+        
+        class DummyUpdate:
+            def __init__(self):
+                self.message = type('obj', (object,), {'reply_text': lambda self, text: print(text)})
+        
+        dummy_update = DummyUpdate()
+        await task_function(dummy_update, None)
+    
+    return run_task
+
+# Start scheduling in a separate thread 
+def start_scheduling():
+    schedule.every().day.at("00:05").do(scheduled_task("place orders", place_orders))
+    schedule.every().day.at("23:55").do(scheduled_task("cancel orders", cancel_orders))
+
+    while True:
+        schedule.run_pending()  # Check if any scheduled task is due
+        time.sleep(1)  # Sleep for a second
 
 # Main function
 def main():
@@ -176,6 +205,10 @@ def main():
     application.add_handler(CommandHandler("check", check_balances))  # /check command
     application.add_handler(CommandHandler("place", place_orders))  # /place command
     application.add_handler(CommandHandler("cancel", cancel_orders))  # /cancel command
+
+    # Start scheduling in a separate thread 
+    scheduler_thread = threading.Thread(target=start_scheduling, daemon=True)
+    scheduler_thread.start()
 
     # Start the bot
     logger.info("Bot started successfully.")

@@ -60,7 +60,7 @@ CHAT_ID=your_telegram_chat_id
 
 # Trading Parameters
 MIN_PERCENTAGE_DIP=1        # Minimum percentage dip
-MAX_PERCENTAGE_DIP=15       # Maximum percentage dip
+MAX_PERCENTAGE_DIP=10       # Maximum percentage dip
 ```
 
 Replace the placeholders with your actual credentials.

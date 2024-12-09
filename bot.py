@@ -3,10 +3,11 @@ import ccxt
 from decimal import Decimal
 from dotenv import load_dotenv
 import logging
+from logging.handlers import RotatingFileHandler
 import os
 import pytz
 import schedule
-from telegram import Update
+from telegram import BotCommand, Update
 from telegram.ext import Application, CommandHandler, ContextTypes
 import threading
 import time
@@ -20,13 +21,20 @@ TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 CHAT_ID = os.getenv("CHAT_ID")
 
 MIN_PERCENTAGE_DIP = int(os.getenv("MIN_PERCENTAGE_DIP", 1))
-MAX_PERCENTAGE_DIP = int(os.getenv("MAX_PERCENTAGE_DIP", 15))
+MAX_PERCENTAGE_DIP = int(os.getenv("MAX_PERCENTAGE_DIP", 10))
 
-# Configure logging
+# Configure logging with log rotation
+log_file = "bot.log"
+log_handler = RotatingFileHandler(
+    log_file, maxBytes=5 * 1024 * 1024, backupCount=5  # 5 MB per file, keep 5 backups
+)
+
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    level=logging.INFO
+    level=logging.INFO,
+    handlers=[log_handler]  # Use the rotating file handler
 )
+
 logger = logging.getLogger(__name__)
 
 # Initialize Upbit exchange instance
@@ -199,6 +207,15 @@ def main():
 
     # Initialize Application
     application = Application.builder().token(TELEGRAM_BOT_TOKEN).build()
+
+    # Set bot commands for the menu button
+    commands = [
+        BotCommand("start", "Start the bot and see available commands"),
+        BotCommand("check", "See all your balances"),
+        BotCommand("place", "Place buy orders based on the dip-buy strategy"),
+        BotCommand("cancel", "Cancel all your open orders"),
+    ]
+    application.bot.set_my_commands(commands)
 
     # Add command handlers
     application.add_handler(CommandHandler("start", start))  # /start command

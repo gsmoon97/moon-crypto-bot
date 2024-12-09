@@ -1,132 +1,95 @@
 # Moon's Crypto Bot 🌚
 
-**Moon's Crypto Bot** is an automated cryptocurrency trading bot designed for **BTC/KRW** trading on the Upbit exchange. It places limit buy orders based on daily percentage dips, monitors balances, and provides real-time notifications via Telegram. 
+Moon's Crypto Bot is a Telegram bot designed to automate cryptocurrency trading on Upbit. It includes a dip-buying strategy based on predefined percentage drops in the BTC/KRW market price, balance checks, and automated order management.
+
+## Features
+- **Command Interface:**
+  - `/start`: View all available commands.
+  - `/check`: Check your account balances.
+  - `/place`: Place buy orders for BTC based on percentage dips.
+  - `/cancel`: Cancel open orders created by the bot.
+- **Automated Scheduling:**
+  - Automatically place buy orders at a specified start time.
+  - Automatically cancel open orders at a specified end time.
+- **Rotating Logs:** Logs are maintained with a rotating file handler to prevent storage overflow.
 
 ---
 
-## **Features**
+## Setup
 
-- **Automated Dip Buying**: Places limit buy orders at percentage dips (e.g., 1%, 2%, ..., 15%) below the daily open price.
-- **Balance Tracking**: Displays all non-zero balances in your Upbit account.
-- **Order Management**: 
-  - Automatically places and cancels orders on schedule.
-  - Cancels unfilled orders at the end of the day.
-- **Customizable Trading Parameters**: Define dip ranges and order sizes via `.env`.
-- **Telegram Integration**: Real-time notifications for order placements, cancellations, and balance updates.
+### 1. Prerequisites
+- Python 3.8 or higher
+- An Upbit account with API credentials
+- A Telegram bot token
+- `pip` for managing dependencies
 
----
+### 2. Installation
+1. Clone the repository:
+    ```bash
+    git clone https://github.com/<your-repo>.git
+    cd <your-repo>
+    ```
 
-## **Commands**
+2. Install required dependencies:
+    ```bash
+    pip install -r requirements.txt
+    ```
 
-- **`/start`**: View all available commands.
-- **`/check`**: Check and display your non-zero account balances.
-- **`/place`**: Place buy orders at predefined dips below the daily BTC/KRW open price.
-- **`/cancel`**: Cancel all unfilled orders.
+3. Create a `.env` file in the project directory:
+    ```bash
+    touch .env
+    ```
 
----
-
-## **Daily Automation**
-
-- **00:05 UTC**: Places orders based on the specified percentage dips.
-- **23:55 UTC**: Cancels any unfilled orders to prepare for the next day.
-
----
-
-## **Setup Instructions**
-
-### 1. Clone the Repository
-```bash
-git clone https://github.com/yourusername/moons-crypto-bot.git
-cd moons-crypto-bot
-```
-
-### 2. Install Dependencies
-Ensure you have Python 3.9+ installed. Install required libraries using:
-```bash
-pip install -r requirements.txt
-```
-
-### 3. Configure Environment Variables
-Create a `.env` file in the project root with the following details:
-
-```plaintext
-# Upbit API Keys
-UPBIT_ACCESS_KEY=your_upbit_access_key
-UPBIT_SECRET_KEY=your_upbit_secret_key
-
-# Telegram Bot Details
-TELEGRAM_BOT_TOKEN=your_telegram_bot_token
-CHAT_ID=your_telegram_chat_id
-
-# Trading Parameters
-MIN_PERCENTAGE_DIP=1        # Minimum percentage dip
-MAX_PERCENTAGE_DIP=10       # Maximum percentage dip
-```
-
-Replace the placeholders with your actual credentials.
+4. Add the following variables to the `.env` file:
+    ```plaintext
+    # Upbit API credentials
+    UPBIT_ACCESS_KEY=<your_upbit_access_key>
+    UPBIT_SECRET_KEY=<your_upbit_secret_key>
+    
+    # Telegram Bot API token
+    TELEGRAM_BOT_TOKEN=<your_telegram_bot_token>
+    CHAT_ID=<your_chat_id>
+    
+    # Dip-buying strategy
+    MIN_PERCENTAGE_DIP=1
+    MAX_PERCENTAGE_DIP=10
+    
+    # Scheduling times (UTC)
+    START_TIME=00:05
+    END_TIME=23:55
+    ```
 
 ---
 
-## **Usage**
+## Usage
 
-### Start the Bot
-Run the bot locally with:
+### 1. Run the Bot
+Start the bot with:
 ```bash
 python bot.py
 ```
 
----
+### 2. Interact with the Bot
+Use the following Telegram commands:
+- `/start`: View all available commands.
+- `/check`: See your current account balances.
+- `/place`: Place buy orders for BTC based on the dip-buying strategy.
+- `/cancel`: Cancel open orders created by the bot.
 
-## **How It Works**
-
-1. **Fetch Open Price**: Retrieves the daily BTC/KRW open price.
-2. **Place Orders**: Places buy orders at dips between `MIN_PERCENTAGE_DIP` and `MAX_PERCENTAGE_DIP`.
-3. **Cancel Orders**: Cancels all open orders at the end of the day.
-4. **Notifications**: Sends updates via Telegram for every action.
-
----
-
-## **Customization**
-
-- Adjust percentage dips by modifying `MIN_PERCENTAGE_DIP` and `MAX_PERCENTAGE_DIP` in the `.env` file.
-- Configure order sizes based on your strategy by modifying the predefined KRW amounts.
+### 3. Logs
+Logs are written to `bot.log` with a maximum size of 5 MB per file. Up to 5 log files are retained for reference.
 
 ---
 
-## **Dependencies**
+## Customization
 
-Install dependencies using:
-```bash
-pip install -r requirements.txt
-```
+### Update Dip-Buy Strategy
+Modify the range of percentage dips (`MIN_PERCENTAGE_DIP` to `MAX_PERCENTAGE_DIP`) in the `.env` file.
 
-Dependencies include:
-- **`ccxt`**: For interacting with the Upbit API.
-- **`python-telegram-bot`**: Telegram bot integration.
-- **`python-dotenv`**: To manage environment variables.
+### Scheduling
+Adjust the `START_TIME` and `END_TIME` in the `.env` file to schedule tasks.
 
 ---
 
-## **Limitations**
-
-- **Exchange Fees**: The bot does not account for trading fees, so ensure extra funds are available.
-- **API Limits**: Ensure your Upbit account has sufficient request limits.
-- **Latency**: Telegram notifications may experience slight delays due to network or API issues.
-
----
-
-## **Troubleshooting**
-
-- **Dependency Issues**: Use `pip install -r requirements.txt` to ensure all dependencies are installed.
-- **Insufficient Funds**: Ensure adequate funds are available for trading and fees.
-- **Error Logs**: Check logs for detailed error messages.
-
----
-
-## **Future Improvements**
-
-- Dynamic order sizes.
-- Support for additional trading pairs.
-- Enhanced error handling and reporting. 
-
-Start trading smartly with **Moon's Crypto Bot**! 🌚
+## Contributing
+Feel free to fork the repository and submit pull requests for improvements or bug fixes.

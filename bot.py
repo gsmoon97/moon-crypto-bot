@@ -232,34 +232,28 @@ def start_scheduling(application, chat_id):
         # time.sleep(1)
 
 async def send_place(context: ContextTypes.DEFAULT_TYPE) -> None:
-    job = context.job
-    chat_id = job.data['chat_id']
-    await context.bot.send_message(chat_id=chat_id, text="/place")
+    await context.bot.send_message(chat_id=CHAT_ID, text="/place")
 
 async def send_cancel(context: ContextTypes.DEFAULT_TYPE) -> None:
-    job = context.job
-    chat_id = job.data['chat_id']
-    await context.bot.send_message(chat_id=chat_id, text="/cancel")
+    await context.bot.send_message(chat_id=CHAT_ID, text="/cancel")
 
 async def schedule(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    chat_id = update.message.chat.id
     start_time = time(hour=int(START_TIME.split(":")[0]), minute=int(START_TIME.split(":")[1]))
     end_time = time(hour=int(END_TIME.split(":")[0]), minute=int(END_TIME.split(":")[1]))
 
     # Schedule /place at START_TIME every day
-    context.job_queue.run_daily(send_place, time=start_time, data={'chat_id': chat_id})
+    context.job_queue.run_daily(send_place, time=start_time, data={'chat_id': CHAT_ID})
     # Schedule /cancel at END_TIME every day
-    context.job_queue.run_daily(send_cancel, time=end_time, data={'chat_id': chat_id})
+    context.job_queue.run_daily(send_cancel, time=end_time, data={'chat_id': CHAT_ID})
     
     await update.message.reply_text(f"Scheduled /place job at {START_TIME} and /cancel job at {END_TIME} daily.")
 
 async def unschedule(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    chat_id = update.message.chat.id
     job_removed = False
 
     # Remove scheduled jobs for this chat ID
-    for job in context.job_queue.get_jobs_by_name(str(chat_id)):
-        context.job_queue.cancel_job(job.name)
+    for job in context.job_queue.jobs():
+        job.schedule_removal()
         job_removed = True
 
     if job_removed:

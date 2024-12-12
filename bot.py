@@ -97,12 +97,12 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     Hello! This is Moon's Crypto Bot 🌚
     
     Commands:
-    /start - Start the bot
-    /check - Check your balances
-    /place - Place dip-buy orders
-    /cancel - Cancel orders
-    /schedule - Schedule jobs
-    /Unschedule - Unschedule jobs
+    /start - Start the bot and see available commands
+    /check - Check all balances
+    /place - Place buy orders based on the dip-buy strategy
+    /cancel - Cancel all open orders placed by the bot
+    /schedule - Schedule jobs (i.e., start sending /place and /cancel commands daily)
+    /Unschedule - Unschedule jobs (i.e., stop sending /place and /cancel commands daily)
     """
     await update.message.reply_text(commands_list)
 
@@ -246,9 +246,9 @@ async def schedule(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     start_time = time(hour=int(START_TIME.split(":")[0]), minute=int(START_TIME.split(":")[1]))
     end_time = time(hour=int(END_TIME.split(":")[0]), minute=int(END_TIME.split(":")[1]))
 
-    # Schedule /place at 00:05 every day
+    # Schedule /place at START_TIME every day
     context.job_queue.run_daily(send_place, time=start_time, data={'chat_id': chat_id})
-    # Schedule /cancel at 23:05 every day
+    # Schedule /cancel at END_TIME every day
     context.job_queue.run_daily(send_cancel, time=end_time, data={'chat_id': chat_id})
     
     await update.message.reply_text(f"Scheduled /place job at {START_TIME} and /cancel job at {END_TIME} daily.")
@@ -271,12 +271,12 @@ async def post_init(application: Application) -> None:
     bot = application.bot
     # Intialize the command information
     command_info = [
-        BotCommand("start", "Start the bot and see available commands"),
-        BotCommand("check", "See all your balances"),
-        BotCommand("place", "Place buy orders based on the dip-buy strategy"),
-        BotCommand("cancel", "Cancel all your open orders placed by the bot"),
-        BotCommand("schedule", "Schedule jobs (i.e., send /place and /cancel commands daily)"),
-        BotCommand("unschedule", "Unschedule jobs (i.e., do not send /place and /cancel commands daily)"),
+        BotCommand("start", "Start the bot"),
+        BotCommand("check", "Check balances"),
+        BotCommand("place", "Place dip-buy orders"),
+        BotCommand("cancel", "Cancel all open orders"),
+        BotCommand("schedule", "Schedule jobs"),
+        BotCommand("unschedule", "Unschedule jobs"),
     ]
     await bot.set_my_commands(commands=command_info)
 

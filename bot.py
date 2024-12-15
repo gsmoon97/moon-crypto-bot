@@ -97,7 +97,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     Hello! This is Moon's Crypto Bot 🌚
     
     Commands:
-    /start - Start the bot and see available commands
+    /start - Start the bot and see all commands
     /check - Check all balances
     /place - Place buy orders based on the dip-buy strategy
     /cancel - Cancel all open orders placed by the bot

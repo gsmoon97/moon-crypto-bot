@@ -1,4 +1,6 @@
 ccxt==4.0.87
+Flask==3.1.0
+numpy==2.2.0
 python-telegram-bot==20.5
 python-dotenv==1.0.0
 pytz==2023.3

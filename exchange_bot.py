@@ -6,7 +6,6 @@ from logging.handlers import RotatingFileHandler
 import numpy as np
 import os
 import sqlite3
-import time
 
 # Load environment variables
 load_dotenv()

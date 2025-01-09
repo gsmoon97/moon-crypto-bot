@@ -10,7 +10,8 @@ from telegram.ext import Application, CommandHandler, ContextTypes
 load_dotenv()
 
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
-EXCHANGE_API_URL = "http://localhost:5000"  # REST API URL from exchange_bot.py
+EXCHANGE_API_URL = os.getenv("EXCHANGE_API_URL", "http://localhost:5000")  # REST API URL from exchange_bot.py
+SCHEDULE_API_URL = os.getenv("SCHEDULE_API_URL", "http://localhost:6000")  # REST API URL from schedule_bot.py
 
 START_PERCENTAGE_DIP = float(os.getenv("START_PERCENTAGE_DIP", 1.0))
 END_PERCENTAGE_DIP = float(os.getenv("END_PERCENTAGE_DIP", 10.0))
@@ -42,6 +43,8 @@ Commands:
 /place_orders - Place dip-buy orders
 /cancel_orders - Cancel all open orders
 /check_orders - Check all open orders
+/start_scheduler - Start daily order scheduler
+/stop_scheduler - Stop daily order scheduler
 """
     await update.message.reply_text(commands)
 
@@ -142,6 +145,26 @@ async def check_orders(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
         logger.error(f"Error fetching orders: {e}")
         await update.message.reply_text("An error occurred while fetching orders. Please try again later 🌝")
 
+# Command handler: /start_scheduler
+async def start_scheduler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    try:
+        response = requests.post(f"{SCHEDULE_API_URL}/start_scheduler")
+        response.raise_for_status()  # Check for HTTP errors
+        await update.message.reply_text("Daily order scheduler started successfully 🚀")
+    except Exception as e:
+        logger.error(f"Error starting schedule: {e}")
+        await update.message.reply_text("An error occurred while starting the scheduler. Please try again later 🌝")
+
+# Command handler: /stop_scheduler
+async def stop_scheduler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    try:
+        response = requests.post(f"{SCHEDULE_API_URL}/stop_scheduler")
+        response.raise_for_status()  # Check for HTTP errors
+        await update.message.reply_text("Daily order scheduler stopped successfully 🚫")
+    except Exception as e:
+        logger.error(f"Error stopping schedule: {e}")
+        await update.message.reply_text("An error occurred while stopping the scheduler. Please try again later 🌝")
+
 async def post_init(application: Application) -> None:
     """Set bot commands on startup."""
     bot = application.bot
@@ -151,6 +174,8 @@ async def post_init(application: Application) -> None:
         BotCommand("place_orders", "Place dip-buy orders"),
         BotCommand("cancel_orders", "Cancel all open orders"),
         BotCommand("check_orders", "Check all open orders"),
+        BotCommand("start_scheduler", "Start daily order scheduler"),
+        BotCommand("stop_scheduler", "Stop daily order scheduler"),
     ])
 
 # ---------------- Main Application ----------------
@@ -169,6 +194,8 @@ def main():
         CommandHandler("place_orders", place_orders),
         CommandHandler("cancel_orders", cancel_orders),
         CommandHandler("check_orders", check_orders),
+        CommandHandler("start_scheduler", start_scheduler),
+        CommandHandler("stop_scheduler", stop_scheduler),
     ])
 
     logger.info("Telegram bot started successfully.")

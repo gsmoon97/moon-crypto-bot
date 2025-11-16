@@ -43,10 +43,11 @@ The bot consists of three independent components:
 
 ## Requirements
 
-- Python 3.8+
-- An Upbit API key (with permissions for trading).
-- A Telegram bot token.
-- `pip` for installing dependencies.
+- **Python 3.8 to 3.12**
+  - **Not compatible with Python 3.13** due to a known issue with the `Updater` class in the `python-telegram-bot` library when running on Python 3.13
+- An Upbit API key (with permissions for trading)
+- A Telegram bot token
+- `pip` for installing dependencies
 
 ---
 

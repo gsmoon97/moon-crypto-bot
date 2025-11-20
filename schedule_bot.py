@@ -135,8 +135,11 @@ def start_scheduler():
 
 @app.route("/stop_scheduler", methods=["POST"])
 def stop_scheduler():
+    global scheduler
     if scheduler.running:
-        scheduler.shutdown()
+        scheduler.shutdown(wait=False)
+        # Recreate scheduler to avoid "cannot schedule new futures after shutdown" error
+        scheduler = BackgroundScheduler(timezone="UTC")
         logger.info("Scheduler stopped.")
         return jsonify({"status": "Scheduler stopped."}), 200
     logger.warning("Scheduler is not running.")

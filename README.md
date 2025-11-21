@@ -87,11 +87,10 @@ TELEGRAM_BOT_TOKEN=your_telegram_bot_token
 CHAT_ID=your_chat_id
 
 # Order Parameters
-START_PERCENTAGE_DIP=1.0
-END_PERCENTAGE_DIP=10.0
-PERCENTAGE_DIP_INCREMENT=1.0
-START_AMOUNT=60000
-AMOUNT_INCREMENT=10000
+START_PERCENTAGE_DIP=1
+END_PERCENTAGE_DIP=25
+START_AMOUNT=6000
+AMOUNT_INCREMENT=1000
 
 # Scheduling Times
 START_TIME=00:05
@@ -231,7 +230,7 @@ The Schedule Bot (`schedule_bot.py`) can automatically:
 
 ## Contribution
 
-Feel free to fork the repository, submit issues, or open pull requests to improve the bot.
+Contributions are welcome! Fork the repository, submit issues, or open pull requests to help improve the bot.
 
 ---
 
